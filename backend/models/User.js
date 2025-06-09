@@ -18,6 +18,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         minlength: [6, 'Password should not less than 6 characters.'],
         maxlength: [10, 'Password should not more than 10 characters.']
+    },
+    avtar: {
+        type: String,
+        default: ''
+    },
+    online: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true } );
 
