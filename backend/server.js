@@ -4,6 +4,7 @@ const cors         = require('cors');
 const cookieParser = require('cookie-parser');
 const http         = require('http');
 const { Server }   = require('socket.io');
+const path         = require('path');
 
 dotEnv.config();
 const chatApp       = express();
@@ -11,8 +12,10 @@ const server        = http.createServer(chatApp);
 
 const io = new Server(server, 
 {
-    origin: process.env.CLIENT_URL,
-    credentials: true
+    cors: {
+        origin: process.env.CLIENT_URL,
+        credentials: true
+    }
 });
 
 chatApp.use(cors({ 
@@ -24,6 +27,7 @@ chatApp.use(express.json());
 chatApp.use(cookieParser);
 
 chatApp.use('/api/auth', require('./routes/authRoutes'));
+chatApp.use('/uploades', express.static(path.join(__dirname, 'uploads')));
 
 io.on('connection', (socket) => {
     console.log(`User connected :: ${socket.id}`);

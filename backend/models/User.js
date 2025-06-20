@@ -6,26 +6,42 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Username is required'],
         unique: [true, 'Provided username already exists.'],
-        trim: true
+        trim: true,
+        minlength: [3, 'minimum 3 characters required for the name field.'],
+        maxlength: [50, 'Name field should not more than 50 characters.']
     },
     email: {
         type: String,
         required: [true, 'email field is required.'],
         unique: [true, 'provided email is already exists.'],
-        lowercase: [true, 'email shuld be in lowercase.']
+        lowercase: [true, 'email shuld be in lowercase.'],
+        match: [/^\S+@\S+\.\S+$/, 'Provie valid email address.']
     },
     password: {
         type: String,
         minlength: [6, 'Password should not less than 6 characters.'],
-        maxlength: [10, 'Password should not more than 10 characters.']
+        maxlength: [10, 'Password should not more than 10 characters.'],
+        required: [true, 'Password field is required.']
     },
     avtar: {
         type: String,
         default: ''
     },
-    online: {
+    isOnline: {
         type: Boolean,
         default: false
+    },
+    isDeactivated: {
+        type: Boolean,
+        default: false
+    },
+    lastSeen: {
+        type: Date,
+        default: null
+    },
+    socketId: {
+        type: String,
+        default: null
     }
 }, { timestamps: true } );
 
