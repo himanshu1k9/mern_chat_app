@@ -1,5 +1,11 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+const uploadPath = path.join(__dirname, '..', 'uploades');
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath);
+}
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -13,7 +19,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|gif|webp/;
+    const allowed = /jpeg|jpg|png|gif|webp|avif/;
     const extname = allowed.test(path.extname(file.originalname).toLowerCase());
     const mimeType = allowed.test(file.mimetype);
 

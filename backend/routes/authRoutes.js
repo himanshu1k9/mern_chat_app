@@ -5,9 +5,10 @@ const verifyToken = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/upload');
 
 
-router.post('/register', authCOntroller.registerUser);
-router.post('/login', upload.single('avtar'), authCOntroller.loginUser);
+router.post('/register', upload.single('avtar'),  authCOntroller.registerUser);
+router.post('/login', authCOntroller.loginUser);
 // router.get('/me', verifyToken, authCOntroller.getMe);
+router.get('/logout', authCOntroller.logoutUser);
 
 
 module.exports = router;
