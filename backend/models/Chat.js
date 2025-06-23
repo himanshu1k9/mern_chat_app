@@ -8,6 +8,7 @@ const chatSchema = new mongoose.Schema({
             required: [true, 'the user id field is required.']
         }
     ],
+    
     lastMessage: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message'
