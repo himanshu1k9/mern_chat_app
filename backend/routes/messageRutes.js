@@ -5,7 +5,7 @@ const auth = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/fileUpload');
 
 
-router.post('/send', auth, messageController.sendMessage);
+router.post('/send', auth, messageController.sendTextMessage);
 router.post('/send-file', auth, upload.single('file'), messageController.sendFileMessage);
 
 module.exports = router;

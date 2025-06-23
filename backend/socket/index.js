@@ -1,11 +1,9 @@
 const User = require('../models/User');
 const Message = require('../models/Message');
 const Chat = require('../models/Chat');
+const { v4:uuid } = require('uuid');
 
-// Map to store userId => socketId
 const userSocketMap = new Map();
-
-// Helper function to get socket ID of a user by userId
 const getUserSocket = (userId) => {
   return userSocketMap.get(userId.toString());
 };
@@ -25,6 +23,14 @@ module.exports = (io) => {
       });
       socket.broadcast.emit('user-online', user._id);
     }
+
+    socket.on('join-chat', (chatId) => {
+      socket.join(chatId);
+    });
+
+    socket.on('leave-chat', (chatId) => {
+      socket.leave(chatId);
+    });
 
     socket.on('typing', ({ chatId }) => {
       socket.to(chatId).emit('typing', {
@@ -49,25 +55,38 @@ module.exports = (io) => {
       }
     });
 
-    socket.on('send-message', async ({ chatId, content }) => {
-      try {
-        const msg = await Message.create({
-          chat: chatId,
-          sender: user._id,
-          content
-        });
+    socket.on('group-created', (groupData) => {
+      groupData.users.forEach(user => {
+        if (user._id !== socket.user._id && user.socketId) {
+          io.to(user.socketId).emit('group-added', groupData);
+        }
+      });
+    });
 
-        const chat = await Chat.findById(chatId).populate('users');
+    socket.on('send-message', async ({ chatId, content, sender }) => {
+      if (!chatId || !content || !sender) return;
 
-        chat.users.forEach((u) => {
-          const recipientSocketId = getUserSocket(u._id);
-          if (recipientSocketId) {
-            io.to(recipientSocketId).emit('new-message', msg);
-          }
-        });
-      } catch (err) {
-        console.error("Error sending message:", err.message);
-      }
+      const message = await Message.create({
+        chat: chatId,
+        sender,
+        content
+      });
+
+      const chat = await Chat.findById(chatId);
+      chat.users.forEach(userId => {
+        if (userId.toString() !== sender) {
+          const current = chat.unreadCount.get(userId.toString()) || 0;
+          chat.unreadCount.set(userId.toString(), current + 1);
+        }
+      });
+
+      chat.lastMessage = message._id;
+      await chat.save();
+
+      const populatedMsg = await message
+        .populate('sender', 'username avtar')
+        .populate('chat');
+      io.to(chatId).emit('receive-message', populatedMsg);
     });
 
     socket.on('disconnect', async () => {

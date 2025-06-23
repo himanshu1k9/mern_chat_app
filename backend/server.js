@@ -55,6 +55,7 @@ chatApp.use('/uploades', express.static(path.join(__dirname, 'uploads')));
 chatApp.use('/api/auth', require('./routes/authRoutes'));
 chatApp.use('/api/message', require('./routes/messageRutes'));
 chatApp.use('/api/friends', require('./routes/friendRoutes'));
+chatApp.use('/api/groups', require('./routes/groupRoutes'));
 
 module.exports.startServer = async () => {
   try {
